@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 from sklearn.neighbors import KNeighborsClassifier
 from streamlit.elements.arrow import Data
 from streamlit.proto.Empty_pb2 import Empty
-from utils import populate_NaN
+# from utils import populate_NaN
 
 def main():
 	#---------------------------------#
@@ -24,11 +24,11 @@ def main():
 
 	default_columns = ["AF3","F7","F3","F5","T7","P7","O1","O2","P8","T8","FC6","F4","F8","AF4","EventId"]
 
-	# def populate_NaN(dataframe):
-	# 	""" за всички NaN полета задаваме стойност 0 """
+	def populate_NaN(dataframe):
+		""" за всички NaN полета задаваме стойност 0 """
 
-	# 	dataframe = dataframe.fillna(0)
-	# 	return dataframe
+		dataframe = dataframe.fillna(0)
+		return dataframe
 
 
 	def populate_ids(dataframe):
@@ -466,7 +466,7 @@ def main():
 		uploaded_file_for_predict
 		print('# input source is df')
 	if predict_from == "Manual Input":
-		#input source is text area
+		# input source is text area
 		print('#input source is text area')
 
 	predictions = list()
