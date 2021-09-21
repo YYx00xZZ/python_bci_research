@@ -292,9 +292,6 @@ def main():
 	# ml app
 	""")
 
-	st.code("a da vidim")
-
-
 	#---------------------------------#
 	# Sidebar - Collects user input features into dataframe
 	with st.sidebar.header('1. Upload your CSV data'):
@@ -417,24 +414,28 @@ def main():
 	if uploaded_file_for_predict:
 		__for_predict_df = pd.read_csv(uploaded_file_for_predict)
 		st.write(__for_predict_df.head())
+	else:
+		__for_predict_df = pd.DataFrame()
 
 	dataToPredict = DataToPredict()
 	classesToPredict = ClassesPredict()
 	import re
 	# collect_numbers = lambda x : [float(i) for i in re.split("[^0-9]", x) if i != ""]
-	col1,col2 = st.columns([10,2])
+	col1, col2 = st.columns([10, 2])
+
 	with col1:
 		numbers = st.text_area("PLease enter 14 values (separated with ,). THis represent 1 row of BCI data for which we`ll predict if it's left or right.")
 		collect_rows = numbers.split('\n')
 		collect_numbers = lambda x : [float(i) for i in re.split(",", x) if i != ""]
 		st.text('for e.g. #\n4081.0256, 4091.6667, 4069.6155, 4088.4614, 4099.1025, 4092.3076, 4078.7180, 4078.2051, 4066.7949, 4066.4102, 4046.7949, 4050, 4092.9487, 4081.2820')
-		
+
+
 	with col2:
 		classes = st.text_area("Enter classes here, each on new row")
 		collect_classes = classes.split('\n')
 		print(collect_classes)
-	col1, _, col2 = st.columns([2,8,2])
 
+	col1, _, col2 = st.columns([2,8,2])
 	with col1:
 		if st.button('append') and len(numbers) > 0:
 			for row in collect_rows:
@@ -460,13 +461,26 @@ def main():
 	#     st.table(x)
 	# except ValueError:
 	#     st.title("!")
-	predict_from = st.selectbox("Select data source for predictions", ("---", "DF", "Manual Input"))
+	predict_from = st.selectbox("Select data source for predictions", ("DF", "Manual Input"))
 	if predict_from == "DF":
 		# input source is df
-		uploaded_file_for_predict
+		if __for_predict_df.empty:
+			st.warning('upload data first')
+			classes_for_validation_after_pred = []
+		else:
+			data_for_prediction_source = __for_predict_df.drop('EventId',axis=1)
+			classes_for_validation_after_pred = __for_predict_df['EventId']
+
+
 		print('# input source is df')
+
+
 	if predict_from == "Manual Input":
 		# input source is text area
+		data_for_prediction_source = df_to_predict
+		classes_for_validation_after_pred = collect_classes
+		if df_to_predict.empty:
+			st.warning('enter data first')
 		print('#input source is text area')
 
 	predictions = list()
@@ -474,7 +488,7 @@ def main():
 	if st.button('predict'):
 		loaded_knn_model = pickle.load(open("knn_model.pickle", "rb"))
 		# predict поредово
-		for row in df_to_predict.values:
+		for row in data_for_prediction_source.values:  # df_to_predict.values:
 			# st.text(row)
 			# st.text(np.array(row).reshape(1,-1))
 			# print(type(np.array(row).reshape(1,-1)))
@@ -484,7 +498,7 @@ def main():
 			predictions.append(prediction[0])
 		print(type(predictions[0]))
 
-	for x, y in zip(predictions,collect_classes):
+	for x, y in zip(predictions, classes_for_validation_after_pred):
 		# x, y = str(x, y)
 		# if x != y:
 		# 	st.write(x, y, "gredhka")
